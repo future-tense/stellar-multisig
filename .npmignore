@@ -1,4 +1,10 @@
-lib
+src
+test
+flow-typed
+.flowconfig
+.travis.yml
+_register.js
+
 .idea
 docs
 node_modules
