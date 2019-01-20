@@ -13,16 +13,14 @@ const networkId = StellarSdk.hash('test test test test');
 
 test('two source accounts, single signers', t => {
 
-    const account = new StellarSdk.Account(alice.id, '0');
-
-    const tx = new StellarSdk.TransactionBuilder(account)
-    .addOperation(StellarSdk.Operation.payment({
-        source: bob.id,
-        destination: alice.id,
-        asset: StellarSdk.Asset.native(),
-        amount: '10'
-    }))
-    .build();
+    const tx = new StellarSdk.TransactionBuilder(alice.account)
+        .addOperation(StellarSdk.Operation.payment({
+            source: bob.id,
+            destination: alice.id,
+            asset: StellarSdk.Asset.native(),
+            amount: '10'
+        }))
+        .build();
 
     const accounts = [
         alice.accountInfo,
