@@ -16,7 +16,7 @@ export opaque type signatureHint = string;
  * @return {signatureHint}
  */
 
-const getHintFromPubkey = (
+const getHintFromPubKey = (
     key: pubKey
 ): signatureHint =>
     StellarSdk.Keypair.fromPublicKey((key: any)).signatureHint().toString('hex');
@@ -36,8 +36,8 @@ const getHintFromHash = (
 const hintFunc = {
     'sha256_hash':          getHintFromHash,
     'sha256Hash':           getHintFromHash,
-    'ed25519_public_key':   getHintFromPubkey,
-    'ed25519PublicKey':     getHintFromPubkey
+    'ed25519_public_key':   getHintFromPubKey,
+    'ed25519PublicKey':     getHintFromPubKey
 };
 
 /**
@@ -62,7 +62,7 @@ const getHintFromSignature = (
 ): signatureHint => sig.hint().toString('hex');
 
 export {
-    getHintFromPubkey,
+    getHintFromPubKey,
     getHintFromSignature,
     getHintFromSigner,
 }
