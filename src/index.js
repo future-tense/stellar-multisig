@@ -8,5 +8,4 @@ export * from './ledger';
 export * from './multisig';
 export * from './sign';
 
-import * as myself from './index';
-export default myself;
+export default module.exports;
