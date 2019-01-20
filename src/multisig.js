@@ -48,7 +48,7 @@ export class TooManySignatures extends Error {};
  * @returns {pubKey}
  */
 
-const getOperationSourceAccount = (
+const getOperationSourceAccount_ = (
     op: StellarSdk.Operation,
     tx: StellarSdk.Transaction
 ): pubKey => (op.source ? op.source : tx.source);
@@ -63,7 +63,7 @@ const getOperationSourceAccount = (
 const getTransactionSourceAccounts = (
     tx: StellarSdk.Transaction
 ): Set<pubKey> =>
-    new Set(tx.operations.map((op) => getOperationSourceAccount(op, tx)));
+    new Set(tx.operations.map((op) => getOperationSourceAccount_(op, tx)));
 
 /**
  * Returns the threshold category of an operation
@@ -73,7 +73,7 @@ const getTransactionSourceAccounts = (
  * @returns {ThresholdCategory}
  */
 
-const getOperationCategory = (
+const getOperationCategory_ = (
     op: StellarSdk.Operation
 ): ThresholdCategory => {
     if (op.type === 'setOptions') {
@@ -127,8 +127,8 @@ const getThresholds = (
     thresholds[tx.source] = Math.max(thresholds[tx.source], txThreshold);
 
     tx.operations.forEach((op) => {
-        const source = getOperationSourceAccount(op, tx);
-        const category = getOperationCategory(op);
+        const source = getOperationSourceAccount_(op, tx);
+        const category = getOperationCategory_(op);
 
         const accountThresholds = accountMap[source].thresholds;
         const opThreshold = accountThresholds[category];
@@ -231,7 +231,7 @@ const getSigners = (
             (op.signer.type !== 'preAuthTx') && (op.signer.weight !== 0)
         )
         .forEach((op) => {
-            const account = getOperationSourceAccount(op, tx);
+            const account = getOperationSourceAccount_(op, tx);
             add(op.signer, account);
         });
     }
@@ -245,7 +245,7 @@ const getSigners = (
  * @param signer
  */
 
-const updateSigningWeights = (
+const updateSigningWeights_ = (
     weights: signatureWeights,
     signer: signatureWeights,
 ): void => {
@@ -315,7 +315,9 @@ const addSignatureToWeights = (
     signingKey: string
 ): void => {
     const signer = signers.keys[signingKey];
-    updateSigningWeights(weights, signer);
+    if (signer) {
+        updateSigningWeights_(weights, signer);
+    }
 };
 
 /**
