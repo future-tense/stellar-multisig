@@ -38,17 +38,42 @@ test('two source accounts, single signers', t => {
 
 //
 
+test('two source accounts, single signers (prevalidated)', t => {
+
+    const tx = new StellarSdk.TransactionBuilder(alice.account)
+        .addOperation(StellarSdk.Operation.payment({
+            source: bob.id,
+            destination: alice.id,
+            asset: StellarSdk.Asset.native(),
+            amount: '10'
+        }))
+        .build();
+
+    const accounts = [
+        alice.accountInfo,
+        bob.accountInfo
+    ];
+
+    const signingKeys = [
+        alice.keys.publicKey(),
+        bob.keys.publicKey()
+    ];
+
+    const res = multisig.isApproved_prevalidated(tx, accounts, signingKeys);
+    t.true(res);
+});
+
+//
+
 test('hash(x) signer', t => {
 
-    const account = new StellarSdk.Account(bob.id, '0');
-
-    const tx = new StellarSdk.TransactionBuilder(account)
-    .addOperation(StellarSdk.Operation.payment({
-        destination: alice.id,
-        asset: StellarSdk.Asset.native(),
-        amount: '10'
-    }))
-    .build();
+    const tx = new StellarSdk.TransactionBuilder(bob.account)
+        .addOperation(StellarSdk.Operation.payment({
+            destination: alice.id,
+            asset: StellarSdk.Asset.native(),
+            amount: '10'
+        }))
+        .build();
 
     const accounts = [
         bob.accountInfo

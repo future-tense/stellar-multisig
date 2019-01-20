@@ -353,24 +353,23 @@ const hasEnoughRejections = (
 
 /**
  *
+ * @private
  * @param tx
- * @param networkId
  * @param accounts
- * @param signatures
+ * @param validatedKeys
+ * @param allSignaturesMask
  * @param preAuth
  * @return {boolean}
  * @throws {TooManySignatures}
  */
 
-const isApproved = (
+const isApproved_common_ = (
     tx: StellarSdk.Transaction,
-    networkId: Buffer,
     accounts: Array<AccountInfo>,
-    signatures: Array<signature>,
+    validatedKeys: (signers) => Generator<[number, string], void, void>,
+    allSignaturesMask: number,
     preAuth?: Array<string>
 ): boolean => {
-
-    const txHash = getTransactionHashRaw(tx, networkId);
 
     const hashXSigners = getSigners(tx, accounts, 'sha256_hash');
     const ed25519Signers = getSigners(tx, accounts, 'ed25519_public_key');
@@ -398,29 +397,84 @@ const isApproved = (
             return;
         }
 
-        for (let [index, signature] of signatures.entries()) {
+        for (let [index, signingKey] of validatedKeys(signers)) {
             if (isDone) {
                 break;
             }
-
-            const signingKey = validateSignature(txHash, signers, signature);
-            if (signingKey) {
-                addSignatureToWeights(weights, signers, signingKey);
-                isDone = hasEnoughApprovals(weights, thresholds);
-                signaturesUsed |= (1 << index);
-            }
+            addSignatureToWeights(weights, signers, signingKey);
+            isDone = hasEnoughApprovals(weights, thresholds);
+            signaturesUsed |= (1 << index);
         }
     };
 
     checkSignatures(hashXSigners);
     checkSignatures(ed25519Signers);
 
-    const allSignatures = (1 << signatures.length) - 1;
-    if (signaturesUsed !== allSignatures) {
+    if (signaturesUsed !== allSignaturesMask) {
         throw new TooManySignatures();
     }
 
     return isDone;
+};
+
+/**
+ *
+ * @param tx
+ * @param accounts
+ * @param signingKeys
+ * @param preAuth
+ * @return {boolean}
+ * @throws {TooManySignatures}
+ */
+
+const isApproved_prevalidated = (
+    tx: StellarSdk.Transaction,
+    accounts: Array<AccountInfo>,
+    signingKeys: Array<string>,
+    preAuth?: Array<string>
+): boolean => {
+
+    const keys = function* () {
+        for (let i = 0; i < signingKeys.length; i++) {
+            yield [i, signingKeys[i]];
+        }
+    };
+
+    const allSignaturesMask = (1 << signingKeys.length) - 1;
+    return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
+};
+
+/**
+ *
+ * @param tx
+ * @param networkId
+ * @param accounts
+ * @param signatures
+ * @param preAuth
+ * @return {boolean}
+ * @throws {TooManySignatures}
+ */
+
+const isApproved = (
+    tx: StellarSdk.Transaction,
+    networkId: Buffer,
+    accounts: Array<AccountInfo>,
+    signatures: Array<signature>,
+    preAuth?: Array<string>
+): boolean => {
+
+    const hash = getTransactionHashRaw(tx, networkId);
+    const keys = function* (signers: signers) {
+        for (let i = 0; i < signatures.length; i++) {
+            const signingKey = validateSignature(hash, signers, signatures[i]);
+            if (signingKey) {
+                yield [i, signingKey];
+            }
+        }
+    };
+
+    const allSignaturesMask = (1 << signatures.length) - 1;
+    return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
 };
 
 export {
@@ -432,6 +486,7 @@ export {
 
     validateSignature,
     isApproved,
+    isApproved_prevalidated,
     hasEnoughApprovals,
     hasEnoughRejections
 }
