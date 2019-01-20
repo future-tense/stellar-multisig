@@ -14,7 +14,6 @@ or, using yarn:
 `yarn add @futuretense/stellar-multisig`
 
 
-
 # Usage
 
 ```
@@ -34,3 +33,5 @@ const accounts = await multisig.fetchSourceAccounts(server, sources);
 const signatures = ['...', '...', ...];
 const res = multisig.isApproved(tx, networkId, accounts, signatures);
 ```
+
+Copyright &copy; 2018-2019 Future Tense, LLC
