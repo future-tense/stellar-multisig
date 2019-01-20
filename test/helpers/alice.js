@@ -2,8 +2,9 @@ import StellarSdk from 'stellar-sdk';
 
 const keys = StellarSdk.Keypair.random();
 const id = keys.publicKey();
+const account = new StellarSdk.Account(id, '0');
 
-const account = {
+const accountInfo = {
     id: id,
     signers: [{
         key: id,
@@ -20,6 +21,7 @@ const account = {
 
 export default {
     account,
+    accountInfo,
     id,
     keys
 }

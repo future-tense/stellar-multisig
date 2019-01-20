@@ -25,8 +25,8 @@ test('two source accounts, single signers', t => {
     .build();
 
     const accounts = [
-        alice.account,
-        bob.account
+        alice.accountInfo,
+        bob.accountInfo
     ];
 
     const signatures = [
@@ -53,7 +53,7 @@ test('hash(x) signer', t => {
     .build();
 
     const accounts = [
-        bob.account
+        bob.accountInfo
     ];
 
     const signatures = [
