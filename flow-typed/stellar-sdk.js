@@ -97,7 +97,7 @@ declare module 'stellar-sdk' {
         rawSecretKey(): Buffer;
         canSign(): boolean;
         sign(Buffer): Buffer;
-        verify(message: Buffer, signature: Buffer): boolean;
+        verify(message: Buffer | string, signature: Buffer): boolean;
         signDecorated(Buffer): xdr$DecoratedSignature;
     }
 

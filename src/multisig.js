@@ -262,14 +262,14 @@ const updateSigningWeights = (
 /**
  * Validates a signature and returns the key that signed it, if any
  *
- * @param {Buffer} txHash
+ * @param {Buffer | string} message
  * @param signers
  * @param {signature} signature
  * @return {string | null}
  */
 
 const validateSignature = (
-    txHash: Buffer,
+    message: Buffer | string,
     signers: signers,
     signature: signature
 ): string | null => {
@@ -284,7 +284,7 @@ const validateSignature = (
         if (key[0] === 'G') {
             const keypair = StellarSdk.Keypair.fromPublicKey(key);
             const sig = signature.signature();
-            if (keypair.verify(txHash, sig)) {
+            if (keypair.verify(message, sig)) {
                 return key;
             }
         }
