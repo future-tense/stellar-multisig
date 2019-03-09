@@ -1,6 +1,5 @@
-// @flow
 
-import StellarSdk from 'stellar-sdk';
+import * as StellarSdk from 'stellar-sdk';
 
 /**
  * Decodes a transaction object from a base64-encoded XDR blob
@@ -9,9 +8,11 @@ import StellarSdk from 'stellar-sdk';
  * @return {StellarSdk.Transaction}
  */
 
-const decodeTransaction = (
+export function decodeTransaction(
     txenv: string
-): StellarSdk.Transaction => new StellarSdk.Transaction(txenv);
+): StellarSdk.Transaction {
+    return new StellarSdk.Transaction(txenv);
+}
 
 /**
  * Encodes a transaction object to a base64-encoded XDR blob
@@ -20,11 +21,8 @@ const decodeTransaction = (
  * @return {string}
  */
 
-const encodeTransaction = (
+export function encodeTransaction(
     tx: StellarSdk.Transaction
-): string => tx.toEnvelope().toXDR().toString('base64');
-
-export {
-    decodeTransaction,
-    encodeTransaction
+): string {
+    return tx.toEnvelope().toXDR().toString('base64');
 }

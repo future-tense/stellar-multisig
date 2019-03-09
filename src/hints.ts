@@ -1,13 +1,18 @@
-// @flow
 
-import StellarSdk from 'stellar-sdk';
-import type {pubKey, signature} from './multisig';
+import * as StellarSdk from 'stellar-sdk';
+
+import {
+    Horizon
+} from 'stellar-sdk';
+
+import {pubKey, signature} from './multisig';
+
 
 /**
  * A signature hint is a shortened string used to identify a signer
  */
 
-export opaque type signatureHint = string;
+export type signatureHint = string;
 
 /**
  * Returns a signature hint from a public key
@@ -16,10 +21,10 @@ export opaque type signatureHint = string;
  * @return {signatureHint}
  */
 
-const getHintFromPubKey = (
-    key: pubKey
+export const getHintFromPubKey = (
+    key: string
 ): signatureHint =>
-    StellarSdk.Keypair.fromPublicKey((key: any)).signatureHint().toString('hex');
+    StellarSdk.Keypair.fromPublicKey(key).signatureHint().toString('hex');
 
 /**
  * Returns a signature hint from a SHA256 hash
@@ -47,8 +52,8 @@ const hintFunc = {
  * @return {signatureHint}
  */
 
-const getHintFromSigner = (
-    signer: Object
+export const getHintFromSigner = (
+    signer: Horizon.AccountSigner | any
 ): signatureHint => hintFunc[signer.type](signer.key);
 
 /**
@@ -57,12 +62,6 @@ const getHintFromSigner = (
  * @return {signatureHint}
  */
 
-const getHintFromSignature = (
+export const getHintFromSignature = (
     sig: signature
 ): signatureHint => sig.hint().toString('hex');
-
-export {
-    getHintFromPubKey,
-    getHintFromSignature,
-    getHintFromSigner,
-}

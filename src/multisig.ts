@@ -1,6 +1,10 @@
-// @flow
 
-import StellarSdk from 'stellar-sdk';
+import * as StellarSdk from 'stellar-sdk';
+
+import {
+    Horizon,
+    Server,
+} from 'stellar-sdk';
 
 import {
     getHintFromSignature,
@@ -11,33 +15,27 @@ import {
     getTransactionHashRaw
 } from './sign';
 
-import type {
-    AccountInfo,
-    Signer,
-    SignerTypeEnum,
-    ThresholdCategory,
-    xdr$DecoratedSignature
-} from 'stellar-sdk';
+export type pubKey = string;
+export type signature = StellarSdk.xdr.DecoratedSignature;
 
-import type {
-    signatureHint
-} from './hints';
-
-export opaque type pubKey = string;
-export type signature = xdr$DecoratedSignature;
+type Signer = {
+    key: string;
+    type: string;
+    weight: number;
+};
 
 /**
  */
 
-export type signatureWeights = {[string]: number};
+export type signatureWeights = {[key: string]: number};
 
 export type signers = {
-    hints: {[signatureHint]: Set<string>},
-    keys: {[string]: signatureWeights},
+    hints: {[key: string]: Set<string>},
+    keys: {[key: string]: signatureWeights},
     isEmpty: boolean
 };
 
-export class TooManySignatures extends Error {};
+export class TooManySignatures extends Error {}
 
 /**
  * Returns the source account for an operation
@@ -60,10 +58,11 @@ const getOperationSourceAccount_ = (
  * @returns {Set<pubKey>}
  */
 
-const getTransactionSourceAccounts = (
+export function getTransactionSourceAccounts(
     tx: StellarSdk.Transaction
-): Set<pubKey> =>
-    new Set(tx.operations.map((op) => getOperationSourceAccount_(op, tx)));
+): Set<pubKey> {
+    return new Set(tx.operations.map((op) => getOperationSourceAccount_(op, tx)));
+}
 
 /**
  * Returns the threshold category of an operation
@@ -75,7 +74,7 @@ const getTransactionSourceAccounts = (
 
 const getOperationCategory_ = (
     op: StellarSdk.Operation
-): ThresholdCategory => {
+): string => {
     if (op.type === 'setOptions') {
         if (
             op.masterWeight ||
@@ -105,13 +104,13 @@ const getOperationCategory_ = (
  * @returns {signatureWeights}
  */
 
-const getThresholds = (
+export function getThresholds(
     tx: StellarSdk.Transaction,
-    accounts: Array<AccountInfo>
-): signatureWeights => {
+    accounts: Server.AccountRecord[]
+): signatureWeights {
 
     const thresholds: signatureWeights = {};
-    const accountMap: {[string]: AccountInfo} = {};
+    const accountMap: {[key: string]: Server.AccountRecord} = {};
 
     accounts.forEach((account) => {
         thresholds[account.id] = 1;
@@ -136,22 +135,22 @@ const getThresholds = (
         thresholds[source] = Math.max(thresholds[source], opThreshold);
 
         if (op.type === 'setOptions') {
-            if ('lowThreshold' in op) {
+            if (op.lowThreshold) {
                 accountThresholds.low_threshold = op.lowThreshold;
             }
 
-            if ('medThreshold' in op) {
+            if (op.medThreshold) {
                 accountThresholds.med_threshold = op.medThreshold;
             }
 
-            if ('highThreshold' in op) {
+            if (op.highThreshold) {
                 accountThresholds.high_threshold = op.highThreshold;
             }
         }
     });
 
     return thresholds;
-};
+}
 
 /**
  * Gets the thresholds for when a source account rejects a transaction
@@ -161,10 +160,10 @@ const getThresholds = (
  * @returns {signatureWeights}
  */
 
-const getRejectionThresholds = (
-    accounts: Array<AccountInfo>,
+export function getRejectionThresholds(
+    accounts: Array<Server.AccountRecord>,
     thresholds: signatureWeights
-): signatureWeights => {
+): signatureWeights {
 
     const totals: signatureWeights = {};
     accounts.forEach((account) => {
@@ -175,7 +174,7 @@ const getRejectionThresholds = (
     });
 
     return totals;
-};
+}
 
 /**
  *
@@ -185,11 +184,11 @@ const getRejectionThresholds = (
  * @returns {signers}
  */
 
-const getSigners = (
+export function getSigners(
     tx: StellarSdk.Transaction,
-    accounts: Array<AccountInfo>,
-    type: SignerTypeEnum
-): signers => {
+    accounts: Server.AccountRecord[],
+    type: Horizon.AccountSignerType
+): signers {
 
     const signers: signers = {
         hints: {},
@@ -199,7 +198,7 @@ const getSigners = (
 
     const add = (signer: Signer, accountId: pubKey) => {
         const hint = getHintFromSigner(signer);
-        if (!((hint: any) in signers.hints)) {
+        if (!(hint in signers.hints)) {
             signers.hints[hint] = new Set();
         }
 
@@ -222,22 +221,39 @@ const getSigners = (
         });
     });
 
+    if (type === 'preauth_tx') {
+        return signers;
+    }
+
     //  if any op is adding/modifying a signer, apply it to its source account
 
-    if (type === 'ed25519_public_key') {
-        tx.operations
-        .filter((op) =>
-            (op.type === 'setOptions') && op.signer &&
-            (op.signer.type !== 'preAuthTx') && (op.signer.weight !== 0)
-        )
-        .forEach((op) => {
+    const keyType = {
+        ed25519_public_key: 'ed25519PublicKey',
+        sha256_hash: 'sha256Hash'
+    }[type];
+
+    for (const op of tx.operations) {
+        if ((op.type === 'setOptions') &&
+            op.signer &&
+            (keyType in op.signer) &&
+            (op.signer.weight !== 0))
+        {
             const account = getOperationSourceAccount_(op, tx);
-            add(op.signer, account);
-        });
+            const key_ = op.signer[keyType];
+            const key = keyType === 'sha256Hash' ? StellarSdk.StrKey.encodeSha256Hash(key_) : key_;
+            const weight = op.signer.weight as number;
+
+            const signer = {
+                key,
+                weight,
+                type
+            };
+            add(signer, account);
+        }
     }
 
     return signers;
-};
+}
 
 /**
  * @private
@@ -268,11 +284,11 @@ const updateSigningWeights_ = (
  * @return {string | null}
  */
 
-const validateSignature = (
+export function validateSignature(
     message: Buffer | string,
     signers: signers,
     signature: signature
-): string | null => {
+): string | null {
 
     const hint = getHintFromSignature(signature);
     const keys = signers.hints[hint];
@@ -300,7 +316,7 @@ const validateSignature = (
     }
 
     return null;
-};
+}
 
 /**
  *
@@ -309,16 +325,16 @@ const validateSignature = (
  * @param signingKey
  */
 
-const addSignatureToWeights = (
+export function addSignatureToWeights(
     weights: signatureWeights,
     signers: signers,
     signingKey: string
-): void => {
+): void {
     const signer = signers.keys[signingKey];
     if (signer) {
         updateSigningWeights_(weights, signer);
     }
-};
+}
 
 /**
  * Checks the signature weights accumulated so far, to see if enough weight has
@@ -329,11 +345,12 @@ const addSignatureToWeights = (
  * @return {boolean}
  */
 
-const hasEnoughApprovals = (
+export function hasEnoughApprovals(
     weights: signatureWeights,
     thresholds: signatureWeights
-): boolean =>
-    Object.keys(thresholds).every((key) => weights[key] >= thresholds[key]);
+): boolean {
+    return Object.keys(thresholds).every((key) => weights[key] >= thresholds[key]);
+}
 
 /**
  * Checks the signature rejection weights accumulated so far, to see if enough
@@ -345,11 +362,12 @@ const hasEnoughApprovals = (
  * @return {boolean}
  */
 
-const hasEnoughRejections = (
+export function hasEnoughRejections(
     weights: signatureWeights,
     rejects: signatureWeights
-): boolean =>
-    Object.keys(rejects).every((key) => weights[key] > rejects[key]);
+): boolean {
+    return Object.keys(rejects).every((key) => weights[key] > rejects[key]);
+}
 
 /**
  *
@@ -365,10 +383,10 @@ const hasEnoughRejections = (
 
 const isApproved_common_ = (
     tx: StellarSdk.Transaction,
-    accounts: Array<AccountInfo>,
-    validatedKeys: (signers) => Generator<[number, string], void, void>,
+    accounts: Server.AccountRecord[],
+    validatedKeys: (signers: signers) => IterableIterator<[number, string]>,
     allSignaturesMask: number,
-    preAuth?: Array<string>
+    preAuth?: string[]
 ): boolean => {
 
     const hashXSigners = getSigners(tx, accounts, 'sha256_hash');
@@ -427,14 +445,14 @@ const isApproved_common_ = (
  * @throws {TooManySignatures}
  */
 
-const isApproved_prevalidated = (
+export function isApproved_prevalidated(
     tx: StellarSdk.Transaction,
-    accounts: Array<AccountInfo>,
-    signingKeys: Array<string>,
-    preAuth?: Array<string>
-): boolean => {
+    accounts: Server.AccountRecord[],
+    signingKeys: string[],
+    preAuth?: string[]
+): boolean {
 
-    const keys = function* () {
+    const keys = function* (signers: signers): IterableIterator<[number, string]> {
         for (let i = 0; i < signingKeys.length; i++) {
             yield [i, signingKeys[i]];
         }
@@ -442,7 +460,7 @@ const isApproved_prevalidated = (
 
     const allSignaturesMask = (1 << signingKeys.length) - 1;
     return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
-};
+}
 
 /**
  *
@@ -455,16 +473,16 @@ const isApproved_prevalidated = (
  * @throws {TooManySignatures}
  */
 
-const isApproved = (
+export function isApproved(
     tx: StellarSdk.Transaction,
     networkId: Buffer,
-    accounts: Array<AccountInfo>,
-    signatures: Array<signature>,
-    preAuth?: Array<string>
-): boolean => {
+    accounts: Server.AccountRecord[],
+    signatures: signature[],
+    preAuth?: string[]
+): boolean {
 
     const hash = getTransactionHashRaw(tx, networkId);
-    const keys = function* (signers: signers) {
+    const keys = function* (signers: signers): IterableIterator<[number, string]> {
         for (let i = 0; i < signatures.length; i++) {
             const signingKey = validateSignature(hash, signers, signatures[i]);
             if (signingKey) {
@@ -475,18 +493,4 @@ const isApproved = (
 
     const allSignaturesMask = (1 << signatures.length) - 1;
     return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
-};
-
-export {
-    addSignatureToWeights,
-    getRejectionThresholds,
-    getSigners,
-    getThresholds,
-    getTransactionSourceAccounts,
-
-    validateSignature,
-    isApproved,
-    isApproved_prevalidated,
-    hasEnoughApprovals,
-    hasEnoughRejections
 }

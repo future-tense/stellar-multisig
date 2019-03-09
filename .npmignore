@@ -1,7 +1,5 @@
 src
 test
-flow-typed
-.flowconfig
 .travis.yml
 _register.js
 

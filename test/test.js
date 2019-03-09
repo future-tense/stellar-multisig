@@ -1,8 +1,7 @@
-// @ flow
 
 import test from 'ava';
-import StellarSdk from 'stellar-sdk';
-import multisig from '../src/index';
+import * as StellarSdk from 'stellar-sdk';
+import * as multisig from '../lib';
 
 import alice from './helpers/alice';
 import bob from './helpers/bob';
@@ -13,13 +12,14 @@ const networkId = StellarSdk.hash('test test test test');
 
 test('two source accounts, single signers', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account)
+    const tx = new StellarSdk.TransactionBuilder(alice.account, {fee: 100})
         .addOperation(StellarSdk.Operation.payment({
             source: bob.id,
             destination: alice.id,
             asset: StellarSdk.Asset.native(),
             amount: '10'
         }))
+        .setTimeout(0)
         .build();
 
     const accounts = [
@@ -40,13 +40,14 @@ test('two source accounts, single signers', t => {
 
 test('two source accounts, single signers (prevalidated)', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account)
+    const tx = new StellarSdk.TransactionBuilder(alice.account, {fee: 100})
         .addOperation(StellarSdk.Operation.payment({
             source: bob.id,
             destination: alice.id,
             asset: StellarSdk.Asset.native(),
             amount: '10'
         }))
+        .setTimeout(0)
         .build();
 
     const accounts = [
@@ -67,12 +68,13 @@ test('two source accounts, single signers (prevalidated)', t => {
 
 test('hash(x) signer', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(bob.account)
+    const tx = new StellarSdk.TransactionBuilder(bob.account, {fee: 100})
         .addOperation(StellarSdk.Operation.payment({
             destination: alice.id,
             asset: StellarSdk.Asset.native(),
             amount: '10'
         }))
+        .setTimeout(0)
         .build();
 
     const accounts = [
