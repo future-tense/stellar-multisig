@@ -5,3 +5,4 @@ node_modules
 .git
 .scannerwork
 sonar-project.properties
+.DS_store

@@ -1,11 +1,10 @@
 src
 test
 .travis.yml
-_register.js
-
 .idea
 docs
-node_modules
 .git
+tsconfig.json
 .scannerwork
 sonar-project.properties
+.DS_store
