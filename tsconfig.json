@@ -3,6 +3,7 @@
     "module": "commonjs",
     "removeComments": true,
     "strictNullChecks": true,
+    "declaration": true,
     "sourceMap": false,
     "target": "es2018",
     "outDir": "lib",
