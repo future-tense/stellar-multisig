@@ -23,7 +23,6 @@ export function unregisteredAccount(
         id: account,
         signers: [{
             key: account,
-            public_key: account,
             type: 'ed25519_public_key',
             weight: 1
         }],
