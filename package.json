@@ -2,7 +2,12 @@
   "name": "@futuretense/stellar-multisig",
   "version": "0.2.0",
   "description": "",
-  "main": "lib/index.js",
+  "main": "lib/commonjs/index.js",
+  "browser": "lib/esm/browser.js",
+  "types": "lib/types/index.d.ts",
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "stellar-sdk": "^4.0.2"
   },
