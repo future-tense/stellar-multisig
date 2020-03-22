@@ -85,6 +85,8 @@ const getOperationCategory_ = (
         ) {
             return 'high_threshold';
         }
+    } else if (op.type === 'accountMerge') {
+        return 'high_threshold';
     } else if (
         op.type === 'allowTrust' ||
         op.type === 'bumpSequence' ||
