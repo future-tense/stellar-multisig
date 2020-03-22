@@ -34,4 +34,4 @@ const signatures = ['...', '...', ...];
 const res = multisig.isApproved(tx, networkId, accounts, signatures);
 ```
 
-Copyright &copy; 2018-2019 Future Tense, LLC
+Copyright &copy; 2018-2020 Future Tense, LLC
