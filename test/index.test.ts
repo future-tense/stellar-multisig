@@ -6,21 +6,22 @@ import * as multisig from '../src';
 import alice from './helpers/alice';
 import bob from './helpers/bob';
 
-const networkId = StellarSdk.hash('test test test test');
-
 //
 
 test('two source accounts, single signers', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account, {fee: 100})
-        .addOperation(StellarSdk.Operation.payment({
-            source: bob.id,
-            destination: alice.id,
-            asset: StellarSdk.Asset.native(),
-            amount: '10'
-        }))
-        .setTimeout(0)
-        .build();
+    const tx = new StellarSdk.TransactionBuilder(alice.account, {
+        fee: 100,
+        networkPassphrase: 'test test test test'
+    })
+    .addOperation(StellarSdk.Operation.payment({
+        source: bob.id,
+        destination: alice.id,
+        asset: StellarSdk.Asset.native(),
+        amount: '10'
+    }))
+    .setTimeout(0)
+    .build();
 
     const accounts = [
         alice.accountInfo,
@@ -28,11 +29,11 @@ test('two source accounts, single signers', t => {
     ];
 
     const signatures = [
-        multisig.createTransactionSignature(tx, networkId, alice.keys),
-        multisig.createTransactionSignature(tx, networkId, bob.keys)
+        multisig.createTransactionSignature(tx, alice.keys),
+        multisig.createTransactionSignature(tx, bob.keys)
     ];
 
-    const res = multisig.isApproved(tx, networkId, accounts, signatures);
+    const res = multisig.isApproved(tx, accounts, signatures);
     t.true(res);
 });
 
@@ -40,15 +41,18 @@ test('two source accounts, single signers', t => {
 
 test('two source accounts, single signers (prevalidated)', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account, {fee: 100})
-        .addOperation(StellarSdk.Operation.payment({
-            source: bob.id,
-            destination: alice.id,
-            asset: StellarSdk.Asset.native(),
-            amount: '10'
-        }))
-        .setTimeout(0)
-        .build();
+    const tx = new StellarSdk.TransactionBuilder(alice.account, {
+        fee: 100,
+        networkPassphrase: 'test test test test'
+    })
+    .addOperation(StellarSdk.Operation.payment({
+        source: bob.id,
+        destination: alice.id,
+        asset: StellarSdk.Asset.native(),
+        amount: '10'
+    }))
+    .setTimeout(0)
+    .build();
 
     const accounts = [
         alice.accountInfo,
@@ -68,14 +72,17 @@ test('two source accounts, single signers (prevalidated)', t => {
 
 test('hash(x) signer', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(bob.account, {fee: 100})
-        .addOperation(StellarSdk.Operation.payment({
-            destination: alice.id,
-            asset: StellarSdk.Asset.native(),
-            amount: '10'
-        }))
-        .setTimeout(0)
-        .build();
+    const tx = new StellarSdk.TransactionBuilder(bob.account, {
+        fee: 100,
+        networkPassphrase: 'test test test test'
+    })
+    .addOperation(StellarSdk.Operation.payment({
+        destination: alice.id,
+        asset: StellarSdk.Asset.native(),
+        amount: '10'
+    }))
+    .setTimeout(0)
+    .build();
 
     const accounts = [
         bob.accountInfo
@@ -85,6 +92,6 @@ test('hash(x) signer', t => {
         multisig.createPreimageSignature(bob.preimage)
     ];
 
-    const res = multisig.isApproved(tx, networkId, accounts, signatures);
+    const res = multisig.isApproved(tx, accounts, signatures);
     t.true(res);
 });

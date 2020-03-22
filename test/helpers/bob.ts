@@ -1,10 +1,10 @@
-import StellarSdk from 'stellar-sdk';
+import * as StellarSdk from 'stellar-sdk';
 
 const keys = StellarSdk.Keypair.random();
 const id = keys.publicKey();
 const account = new StellarSdk.Account(id, '0');
 
-const preimage = 'preimage';
+const preimage = Buffer.from('preimage');
 const hashx = StellarSdk.StrKey.encodeSha256Hash(StellarSdk.hash(preimage));
 
 const accountInfo = {

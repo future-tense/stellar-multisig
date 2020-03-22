@@ -5,13 +5,15 @@ import * as StellarSdk from 'stellar-sdk';
  * Decodes a transaction object from a base64-encoded XDR blob
  *
  * @param {string} txenv
+ * @param {string} networkPassphrase
  * @return {StellarSdk.Transaction}
  */
 
 export function decodeTransaction(
-    txenv: string
+    txenv: string,
+    networkPassphrase: string
 ): StellarSdk.Transaction {
-    return new StellarSdk.Transaction(txenv);
+    return new StellarSdk.Transaction(txenv, networkPassphrase);
 }
 
 /**
@@ -24,5 +26,5 @@ export function decodeTransaction(
 export function encodeTransaction(
     tx: StellarSdk.Transaction
 ): string {
-    return tx.toEnvelope().toXDR().toString('base64');
+    return tx.toXDR();
 }

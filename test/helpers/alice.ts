@@ -1,4 +1,4 @@
-import StellarSdk from 'stellar-sdk';
+import * as StellarSdk from 'stellar-sdk';
 
 const keys = StellarSdk.Keypair.random();
 const id = keys.publicKey();

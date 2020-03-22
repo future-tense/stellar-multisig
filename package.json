@@ -4,22 +4,22 @@
   "description": "",
   "main": "lib/index.js",
   "dependencies": {
-    "stellar-sdk": "^0.15.0"
+    "stellar-sdk": "^4.0.2"
   },
   "devDependencies": {
-    "@types/stellar-sdk": "^0.11.1",
     "ava": "^3.5.0",
     "ava-ts": "^0.25.2",
     "ts-node": "^8.8.1",
     "typescript": "^3.3.3333"
   },
   "scripts": {
-    "compile": "npx tsc",
+    "build": "npm run build-cjs && npm run build-esm",
+    "build-esm": "npx tsc -m es6 --outDir lib/esm",
+    "build-cjs": "npx tsc -m commonjs --outDir lib/commonjs",
     "test": "npx ava-ts"
   },
   "author": "Johan Stén <johan@futuretense.io>",
   "license": "MIT",
-  "ava": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/future-tense/stellar-multisig.git"

@@ -1,49 +1,6 @@
 
 import * as StellarSdk from 'stellar-sdk';
 
-const envelopeType = StellarSdk.xdr.EnvelopeType.envelopeTypeTx().toXDR();
-
-/**
- *
- * @private
- * @param tx
- * @param networkId
- * @return {Buffer}
- */
-
-const signatureBase = (
-    tx: StellarSdk.Transaction,
-    networkId: Buffer,
-): Buffer => Buffer.concat([networkId, envelopeType, tx.tx.toXDR()]);
-
-/**
- *
- * @param tx
- * @param networkId
- * @return {*}
- */
-
-export function getTransactionHashRaw(
-    tx: StellarSdk.Transaction,
-    networkId: Buffer,
-): Buffer {
-    return StellarSdk.hash(signatureBase(tx, networkId));
-}
-
-/**
- *
- * @param tx
- * @param networkId
- * @return {string}
- */
-
-export function getTransactionHash(
-    tx: StellarSdk.Transaction,
-    networkId: Buffer,
-): string {
-    return getTransactionHashRaw(tx, networkId).toString('hex');
-}
-
 /**
  *
  * @param tx
@@ -54,10 +11,9 @@ export function getTransactionHash(
 
 export function createTransactionSignature(
     tx: StellarSdk.Transaction,
-    networkId: Buffer,
     keypair: StellarSdk.Keypair,
 ): StellarSdk.xdr.DecoratedSignature {
-    const hash = getTransactionHashRaw(tx, networkId);
+    const hash = tx.hash();
     return keypair.signDecorated(hash);
 }
 
@@ -68,7 +24,7 @@ export function createTransactionSignature(
  */
 
 export function createPreimageSignature(
-    preimage: Buffer | string
+    preimage: Buffer
 ): StellarSdk.xdr.DecoratedSignature {
     const hint = StellarSdk.hash(preimage).slice(28);
     return new StellarSdk.xdr.DecoratedSignature({hint, signature: preimage});
