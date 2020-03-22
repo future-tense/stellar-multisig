@@ -1,7 +1,7 @@
 
 import test from 'ava';
 import * as StellarSdk from 'stellar-sdk';
-import * as multisig from '../lib';
+import * as multisig from '../src';
 
 import alice from './helpers/alice';
 import bob from './helpers/bob';
