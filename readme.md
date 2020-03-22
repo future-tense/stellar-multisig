@@ -21,8 +21,6 @@ import StellarSdk from 'stellar-sdk';
 import multisig from '@futuretense/stellar-multisig';
 
 const server = StellarSdk.Server('...');
-const networkId = StellarSdk.hash(StellarSdk.Networks.PUBLIC);
-
 const tx = StellarSdk.TransactionBuilder('...').build();
 
 ...
@@ -31,7 +29,7 @@ const sources = multisig.getTransactionSourceAccounts(tx);
 const accounts = await multisig.fetchSourceAccounts(server, sources);
 
 const signatures = ['...', '...', ...];
-const res = multisig.isApproved(tx, networkId, accounts, signatures);
+const res = multisig.isApproved(tx, accounts, signatures);
 ```
 
 Copyright &copy; 2018-2020 Future Tense, LLC
