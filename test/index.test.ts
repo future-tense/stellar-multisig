@@ -6,14 +6,16 @@ import * as multisig from '../src';
 import alice from './helpers/alice';
 import bob from './helpers/bob';
 
+const builderOptions = {
+    fee: 100,
+    networkPassphrase: 'test test test test'
+};
+
 //
 
 test('two source accounts, single signers', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account, {
-        fee: 100,
-        networkPassphrase: 'test test test test'
-    })
+    const tx = new StellarSdk.TransactionBuilder(alice.account, builderOptions)
     .addOperation(StellarSdk.Operation.payment({
         source: bob.id,
         destination: alice.id,
@@ -41,10 +43,7 @@ test('two source accounts, single signers', t => {
 
 test('two source accounts, single signers (prevalidated)', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(alice.account, {
-        fee: 100,
-        networkPassphrase: 'test test test test'
-    })
+    const tx = new StellarSdk.TransactionBuilder(alice.account, builderOptions)
     .addOperation(StellarSdk.Operation.payment({
         source: bob.id,
         destination: alice.id,
@@ -72,10 +71,7 @@ test('two source accounts, single signers (prevalidated)', t => {
 
 test('hash(x) signer', t => {
 
-    const tx = new StellarSdk.TransactionBuilder(bob.account, {
-        fee: 100,
-        networkPassphrase: 'test test test test'
-    })
+    const tx = new StellarSdk.TransactionBuilder(bob.account, builderOptions)
     .addOperation(StellarSdk.Operation.payment({
         destination: alice.id,
         asset: StellarSdk.Asset.native(),
