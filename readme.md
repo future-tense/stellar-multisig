@@ -5,14 +5,7 @@
 
 # Install
 
-Using npm:
-
-`npm install --save @futuretense/stellar-multisig`
-
-or, using yarn:
-
-`yarn add @futuretense/stellar-multisig`
-
+`npm install @futuretense/stellar-multisig`
 
 # Usage
 
