@@ -1,7 +1,7 @@
 
 import test from 'ava';
 import * as StellarSdk from 'stellar-sdk';
-import * as multisig from '../src';
+import * as multiSig from '../src';
 
 import alice from './helpers/alice';
 import bob from './helpers/bob';
@@ -31,11 +31,11 @@ test('two source accounts, single signers', t => {
     ];
 
     const signatures = [
-        multisig.createTransactionSignature(tx, alice.keys),
-        multisig.createTransactionSignature(tx, bob.keys)
+        multiSig.createTransactionSignature(tx, alice.keys),
+        multiSig.createTransactionSignature(tx, bob.keys)
     ];
 
-    const res = multisig.isApproved(tx, accounts, signatures);
+    const res = multiSig.isApproved(tx, accounts, signatures);
     t.true(res);
 });
 
@@ -63,7 +63,7 @@ test('two source accounts, single signers (prevalidated)', t => {
         bob.keys.publicKey()
     ];
 
-    const res = multisig.isApproved_prevalidated(tx, accounts, signingKeys);
+    const res = multiSig.isApproved_prevalidated(tx, accounts, signingKeys);
     t.true(res);
 });
 
@@ -85,9 +85,9 @@ test('hash(x) signer', t => {
     ];
 
     const signatures = [
-        multisig.createPreimageSignature(bob.preimage)
+        multiSig.createPreimageSignature(bob.preimage)
     ];
 
-    const res = multisig.isApproved(tx, accounts, signatures);
+    const res = multiSig.isApproved(tx, accounts, signatures);
     t.true(res);
 });
