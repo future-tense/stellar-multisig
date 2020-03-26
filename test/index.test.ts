@@ -35,7 +35,7 @@ test('two source accounts, single signers', t => {
         multiSig.createTransactionSignature(tx, bob.keys)
     ];
 
-    const res = multiSig.isApproved(tx, accounts, signatures);
+    const res = multiSig.hasEnoughSignatures(tx, accounts, signatures);
     t.true(res);
 });
 
@@ -63,7 +63,7 @@ test('two source accounts, single signers (prevalidated)', t => {
         bob.keys.publicKey()
     ];
 
-    const res = multiSig.isApproved_prevalidated(tx, accounts, signingKeys);
+    const res = multiSig.hasEnoughSigners(tx, accounts, signingKeys);
     t.true(res);
 });
 
@@ -88,6 +88,6 @@ test('hash(x) signer', t => {
         multiSig.createPreimageSignature(bob.preimage)
     ];
 
-    const res = multiSig.isApproved(tx, accounts, signatures);
+    const res = multiSig.hasEnoughSignatures(tx, accounts, signatures);
     t.true(res);
 });

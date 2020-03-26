@@ -340,7 +340,7 @@ export function addSignatureToWeights(
  * @return {boolean}
  */
 
-export function hasEnoughApprovals(
+export function hasEnoughWeight(
     weights: SignatureWeights,
     thresholds: SignatureWeights
 ): boolean {
@@ -376,7 +376,7 @@ export function hasEnoughRejections(
  * @throws {TooManySignatures}
  */
 
-const isApproved_common_ = (
+const hasEnough_common_ = (
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
     validatedKeys: (signers: Signers) => IterableIterator<[number, string]>,
@@ -398,7 +398,7 @@ const isApproved_common_ = (
             }
 
             addSignatureToWeights(weights, ed25519Signers, signingKey);
-            isDone = hasEnoughApprovals(weights, thresholds);
+            isDone = hasEnoughWeight(weights, thresholds);
         }
     }
 
@@ -415,7 +415,7 @@ const isApproved_common_ = (
                 break;
             }
             addSignatureToWeights(weights, signers, signingKey);
-            isDone = hasEnoughApprovals(weights, thresholds);
+            isDone = hasEnoughWeight(weights, thresholds);
             signaturesUsed |= (1 << index);
         }
     };
@@ -440,7 +440,7 @@ const isApproved_common_ = (
  * @throws {TooManySignatures}
  */
 
-export function isApproved_prevalidated(
+export function hasEnoughSigners(
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
     signingKeys: string[],
@@ -454,7 +454,7 @@ export function isApproved_prevalidated(
     };
 
     const allSignaturesMask = (1 << signingKeys.length) - 1;
-    return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
+    return hasEnough_common_(tx, accounts, keys, allSignaturesMask, preAuth);
 }
 
 /**
@@ -467,7 +467,7 @@ export function isApproved_prevalidated(
  * @throws {TooManySignatures}
  */
 
-export function isApproved(
+export function hasEnoughSignatures(
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
     signatures: Signature[],
@@ -485,5 +485,5 @@ export function isApproved(
     };
 
     const allSignaturesMask = (1 << signatures.length) - 1;
-    return isApproved_common_(tx, accounts, keys, allSignaturesMask, preAuth);
+    return hasEnough_common_(tx, accounts, keys, allSignaturesMask, preAuth);
 }
