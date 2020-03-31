@@ -2,7 +2,7 @@
 import * as StellarSdk from 'stellar-sdk';
 
 import {
-    PubKey,
+    StrKey,
     Signature,
     Signer
 } from './multisig';
@@ -21,7 +21,7 @@ export type SignatureHint = string;
  */
 
 export const getHintFromPubKey = (
-    key: string
+    key: StrKey
 ): SignatureHint =>
     StellarSdk.Keypair.fromPublicKey(key).signatureHint().toString('hex');
 
@@ -33,7 +33,7 @@ export const getHintFromPubKey = (
  */
 
 const getHintFromHash = (
-    key: string
+    key: StrKey
 ): SignatureHint =>
     StellarSdk.StrKey.decodeSha256Hash(key).slice(28).toString('hex');
 

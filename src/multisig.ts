@@ -6,7 +6,7 @@ import {
     getHintFromSigner
 } from './hints';
 
-export type PubKey = string;
+export type StrKey = string;
 export type Signature = StellarSdk.xdr.DecoratedSignature;
 export type AccountRecord = Pick<StellarSdk.ServerApi.AccountRecord, 'id' | 'signers' | 'thresholds' | 'balances'>;
 export type AccountSignerType = 'ed25519_public_key' | 'preauth_tx' | 'sha256_hash';
@@ -44,7 +44,7 @@ type OperationSigner = {[index: string]: any};
 const getOperationSourceAccount_ = (
     op: StellarSdk.Operation,
     tx: StellarSdk.Transaction
-): PubKey => (op.source ? op.source : tx.source);
+): StrKey => (op.source ? op.source : tx.source);
 
 /**
  * Returns the source accounts for a transaction
@@ -55,8 +55,8 @@ const getOperationSourceAccount_ = (
 
 export function getTransactionSourceAccounts(
     tx: StellarSdk.Transaction
-): Set<PubKey> {
     return new Set(tx.operations.map((op) => getOperationSourceAccount_(op, tx)));
+): Set<StrKey> {
 }
 
 /**
@@ -193,7 +193,7 @@ export function getSigners(
         isEmpty: true
     };
 
-    const add = (signer: Signer, accountId: PubKey) => {
+    const add = (signer: Signer, accountId: StrKey) => {
         const hint = getHintFromSigner(signer);
         if (!(hint in signers.hints)) {
             signers.hints[hint] = new Set();
@@ -285,7 +285,7 @@ export function validateSignature(
     message: Buffer,
     signers: Signers,
     signature: Signature
-): string | null {
+): StrKey | null {
 
     const hint = getHintFromSignature(signature);
     const keys = signers.hints[hint];
