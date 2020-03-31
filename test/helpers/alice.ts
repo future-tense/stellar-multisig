@@ -1,6 +1,6 @@
 import * as StellarSdk from 'stellar-sdk';
 
-const keys = StellarSdk.Keypair.random();
+const keys = StellarSdk.Keypair.fromRawEd25519Seed(StellarSdk.hash(Buffer.from('Alice')));
 const id = keys.publicKey();
 const account = new StellarSdk.Account(id, '0');
 

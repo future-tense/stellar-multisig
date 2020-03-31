@@ -378,34 +378,68 @@ export function hasEnoughRejections(
  * @throws {TooManySignatures}
  */
 
-const hasEnough_common_ = (
+function _processPreAuthSigners(
+    tx: StellarSdk.Transaction,
+    accounts: AccountRecord[],
+    signers: Signers,
+    weights: SignatureWeights,
+    thresholds: SignatureWeights,
+): boolean {
+
+    const t: [AccountRecord, Signer][] = [];
+    for (const account of accounts) {
+        for (const signer of account.signers) {
+            if (signer.type == 'preauth_tx') {
+                t.push([account, signer]);
+            }
+        }
+    }
+
+    let isDone = false;
+    if (t.length) {
+        const hash = tx.hash();
+        const key = StellarSdk.StrKey.encodePreAuthTx(hash);
+
+        for (const [account, signer] of t) {
+            if (isDone) {
+                break;
+            }
+
+            if (signer.key === key) {
+                const sourceAccounts = signers.keys[account.id];
+                for (const source in sourceAccounts) {
+                    if (source in weights) {
+                        weights[source] += signer.weight;
+                    } else {
+                        weights[source]  = signer.weight;
+                    }
+                }
+
+                isDone = hasEnoughWeight(weights, thresholds);
+            }
+        }
+    }
+
+    return isDone;
+}
+
+const _has_enough_common = (
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
     validatedKeys: (signers: Signers) => IterableIterator<[number, string]>,
-    allSignaturesMask: number,
-    preAuth?: string[]
+    allSignaturesMask: number
 ): boolean => {
 
-    const hashXSigners = getSigners(tx, accounts, 'sha256_hash');
     const ed25519Signers = getSigners(tx, accounts, 'ed25519_public_key');
     const thresholds = getThresholds(tx, accounts);
     const weights = {};
 
-    let isDone = false;
-
-    if (preAuth) {
-        for (let signingKey of preAuth) {
-            if (isDone) {
-                return true;
-            }
-
-            addSignatureToWeights(weights, ed25519Signers, signingKey);
-            isDone = hasEnoughWeight(weights, thresholds);
-        }
+    let isDone = _processPreAuthSigners(tx, accounts, ed25519Signers, weights, thresholds);
+    if (isDone) {
+        return true;
     }
 
     let signaturesUsed = 0;
-
     const checkSignatures = (signers: Signers) => {
 
         if (signers.isEmpty) {
@@ -422,6 +456,7 @@ const hasEnough_common_ = (
         }
     };
 
+    const hashXSigners = getSigners(tx, accounts, 'sha256_hash');
     checkSignatures(hashXSigners);
     checkSignatures(ed25519Signers);
 
@@ -445,18 +480,17 @@ const hasEnough_common_ = (
 export function hasEnoughSigners(
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
-    signingKeys: string[],
-    preAuth?: string[]
+    signingKeys: string[]
 ): boolean {
 
-    const keys = function* (signers: Signers): IterableIterator<[number, string]> {
+    const keys = function* (): IterableIterator<[number, string]> {
         for (let i = 0; i < signingKeys.length; i++) {
             yield [i, signingKeys[i]];
         }
     };
 
     const allSignaturesMask = (1 << signingKeys.length) - 1;
-    return hasEnough_common_(tx, accounts, keys, allSignaturesMask, preAuth);
+    return _has_enough_common(tx, accounts, keys, allSignaturesMask);
 }
 
 /**
@@ -472,8 +506,7 @@ export function hasEnoughSigners(
 export function hasEnoughSignatures(
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
-    signatures: Signature[],
-    preAuth?: string[]
+    signatures: Signature[]
 ): boolean {
 
     const hash = tx.hash();
@@ -487,5 +520,5 @@ export function hasEnoughSignatures(
     };
 
     const allSignaturesMask = (1 << signatures.length) - 1;
-    return hasEnough_common_(tx, accounts, keys, allSignaturesMask, preAuth);
+    return _has_enough_common(tx, accounts, keys, allSignaturesMask);
 }
