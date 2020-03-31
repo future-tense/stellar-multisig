@@ -20,16 +20,18 @@ export type Signer = {
 /**
  */
 
-export type SignatureWeights = {[key: string]: number};
+export type SignatureWeights = {[index: string]: number};
 
 export type Signers = {
-    hints: {[key: string]: Set<string>},
-    keys: {[key: string]: SignatureWeights},
+    hints: {[index: string]: Set<StrKey>},
+    keys: {[index: string]: SignatureWeights},
     isEmpty: boolean
 };
 
 export class TooManySignatures extends Error {}
 
+type AccountThresholdsType = 'low_threshold' | 'med_threshold' | 'high_threshold';
+type OperationSigner = {[index: string]: any};
 /**
  * Returns the source account for an operation
  *
@@ -67,7 +69,7 @@ export function getTransactionSourceAccounts(
 
 const getOperationCategory_ = (
     op: StellarSdk.Operation
-): string => {
+): AccountThresholdsType => {
     if (op.type === 'setOptions') {
         if (
             op.masterWeight ||
@@ -105,7 +107,7 @@ export function getThresholds(
 ): SignatureWeights {
 
     const thresholds: SignatureWeights = {};
-    const accountMap: {[key: string]: AccountRecord} = {};
+    const accountMap: {[index: string]: AccountRecord} = {};
 
     accounts.forEach((account) => {
         thresholds[account.id] = 1;
@@ -234,7 +236,7 @@ export function getSigners(
             (op.signer.weight !== 0))
         {
             const account = getOperationSourceAccount_(op, tx);
-            const key_ = op.signer[keyType];
+            const key_ = (op.signer as OperationSigner)[keyType];
             const key = keyType === 'sha256Hash' ? StellarSdk.StrKey.encodeSha256Hash(key_) : key_;
             const weight = op.signer.weight as number;
 
