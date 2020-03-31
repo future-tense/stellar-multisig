@@ -41,7 +41,7 @@ type OperationSigner = {[index: string]: any};
  * @returns {PubKey}
  */
 
-const getOperationSourceAccount_ = (
+const _getOperationSourceAccount = (
     op: StellarSdk.Operation,
     tx: StellarSdk.Transaction
 ): StrKey => (op.source ? op.source : tx.source);
@@ -55,8 +55,8 @@ const getOperationSourceAccount_ = (
 
 export function getTransactionSourceAccounts(
     tx: StellarSdk.Transaction
-    return new Set(tx.operations.map((op) => getOperationSourceAccount_(op, tx)));
 ): Set<StrKey> {
+    return new Set(tx.operations.map((op) => _getOperationSourceAccount(op, tx)));
 }
 
 /**
@@ -67,7 +67,7 @@ export function getTransactionSourceAccounts(
  * @returns {ThresholdCategory}
  */
 
-const getOperationCategory_ = (
+const _getOperationCategory = (
     op: StellarSdk.Operation
 ): AccountThresholdsType => {
     if (op.type === 'setOptions') {
@@ -123,8 +123,8 @@ export function getThresholds(
     thresholds[tx.source] = Math.max(thresholds[tx.source], txThreshold);
 
     tx.operations.forEach((op) => {
-        const source = getOperationSourceAccount_(op, tx);
-        const category = getOperationCategory_(op);
+        const source = _getOperationSourceAccount(op, tx);
+        const category = _getOperationCategory(op);
 
         const accountThresholds = accountMap[source].thresholds;
         const opThreshold = accountThresholds[category];
@@ -235,7 +235,7 @@ export function getSigners(
             (keyType in op.signer) &&
             (op.signer.weight !== 0))
         {
-            const account = getOperationSourceAccount_(op, tx);
+            const account = _getOperationSourceAccount(op, tx);
             const key_ = (op.signer as OperationSigner)[keyType];
             const key = keyType === 'sha256Hash' ? StellarSdk.StrKey.encodeSha256Hash(key_) : key_;
             const weight = op.signer.weight as number;
@@ -258,7 +258,7 @@ export function getSigners(
  * @param signer
  */
 
-const updateSigningWeights_ = (
+const _updateSigningWeights = (
     weights: SignatureWeights,
     signer: SignatureWeights,
 ): void => {
@@ -329,7 +329,7 @@ export function addSignatureToWeights(
 ): void {
     const signer = signers.keys[signingKey];
     if (signer) {
-        updateSigningWeights_(weights, signer);
+        _updateSigningWeights(weights, signer);
     }
 }
 

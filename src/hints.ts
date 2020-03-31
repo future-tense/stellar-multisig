@@ -32,14 +32,14 @@ export const getHintFromPubKey = (
  * @return {SignatureHint}
  */
 
-const getHintFromHash = (
+const _getHintFromHash = (
     key: StrKey
 ): SignatureHint =>
     StellarSdk.StrKey.decodeSha256Hash(key).slice(28).toString('hex');
 
-const hintFunc = {
-    'sha256_hash':          getHintFromHash,
-    'sha256Hash':           getHintFromHash,
+const hintFunc: {[index: string]: any} = {
+    'sha256_hash':          _getHintFromHash,
+    'sha256Hash':           _getHintFromHash,
     'ed25519_public_key':   getHintFromPubKey,
     'ed25519PublicKey':     getHintFromPubKey
 };
