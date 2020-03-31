@@ -1,9 +1,5 @@
 
 import * as StellarSdk from 'stellar-sdk';
-
-import {
-    ServerApi,
-} from 'stellar-sdk';
 import { StrKey } from './multisig';
 
 /**
@@ -51,7 +47,7 @@ export function unregisteredAccount(
 const getAccountPromises = (
     accounts: Set<StrKey>,
     horizon: StellarSdk.Server
-): Promise<ServerApi.AccountRecord>[] => [...accounts].map(
+): Promise<StellarSdk.ServerApi.AccountRecord>[] => [...accounts].map(
     (account) => horizon.accounts().accountId(account)
         .call()
         .catch(unregisteredAccount(account))
@@ -67,7 +63,7 @@ const getAccountPromises = (
 export async function fetchSourceAccounts(
     accountList: Set<StrKey>,
     horizon: StellarSdk.Server
-): Promise<ServerApi.AccountRecord[]> {
     const promises = getAccountPromises(accountList, horizon);
+): Promise<StellarSdk.ServerApi.AccountRecord[]> {
     return Promise.all(promises);
 }
