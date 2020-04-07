@@ -46,8 +46,8 @@ export function unregisteredAccount(
  */
 
 const _getAccountPromises = (
-    accounts: Set<StrKey>,
-    horizon: StellarSdk.Server
+    horizon: StellarSdk.Server,
+    accounts: Set<StrKey>
 ): Promise<StellarSdk.ServerApi.AccountRecord>[] => [...accounts].map(
     (account) => horizon.accounts().accountId(account)
         .call()
@@ -65,6 +65,6 @@ export async function fetchAccountRecords(
     horizon: StellarSdk.Server,
     accountList: Set<StrKey>
 ): Promise<StellarSdk.ServerApi.AccountRecord[]> {
-    const promises = _getAccountPromises(accountList, horizon);
+    const promises = _getAccountPromises(horizon, accountList);
     return Promise.all(promises);
 }
