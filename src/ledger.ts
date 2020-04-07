@@ -4,12 +4,10 @@ import { StrKey } from './multisig';
 
 /**
  *
- * @param account
- * @returns {Function}
+ * @public
+ * @param account -
+ * @returns Function
  */
-
-
-// Server.AccountRecord
 
 export function unregisteredAccount(
     account: StrKey
@@ -39,10 +37,10 @@ export function unregisteredAccount(
 /**
  * Returns an array of promises for account information
  *
- * @private
- * @param  {Set<string>} accounts    The array of accounts to get account information for
- * @param horizon
- * @return {Array<Promise<AccountInfo>>}
+ * @internal
+ * @param horizon - the horizon server to query
+ * @param accounts - the array of accounts to get account information for
+ * @returns an array of promises
  */
 
 const _getAccountPromises = (
@@ -55,10 +53,13 @@ const _getAccountPromises = (
 );
 
 /**
+ * Fetches the account records for all of the listed accounts
  *
- * @param accountList
- * @param horizon
- * @return {Promise<Array<AccountInfo>>}
+ * @public
+ * @category High-level
+ * @param horizon - the horizon server to query
+ * @param accountList - the list of public keys for accounts
+ * @returns a promise for an array of account records
  */
 
 export async function fetchAccountRecords(

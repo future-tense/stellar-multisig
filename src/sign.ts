@@ -2,11 +2,13 @@
 import * as StellarSdk from 'stellar-sdk';
 
 /**
+ * Create a signature that's valid for signing a transaction by an 'ed25519PublicKey` signer
  *
- * @param tx
- * @param networkId
- * @param keypair
- * @return {StellarSdk.xdr.DecoratedSignature}
+ * @public
+ * @category High-level
+ * @param tx - the transaction
+ * @param keypair - the signing keys
+ * @returns a signature
  */
 
 export function createKeypairSignature(
@@ -18,9 +20,12 @@ export function createKeypairSignature(
 }
 
 /**
+ * Create a preimage signature that's valid for signing by a `sha256Hash` signer
  *
- * @param {Buffer} preimage
- * @return {StellarSdk.xdr.DecoratedSignature}
+ * @public
+ * @category High-level
+ * @param preimage - the hash preimage
+ * @returns a signature
  */
 
 export function createPreimageSignature(

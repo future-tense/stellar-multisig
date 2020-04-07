@@ -15,12 +15,14 @@
     "ava": "^3.5.0",
     "ava-ts": "^0.25.2",
     "ts-node": "^8.8.1",
+    "typedoc": "^0.17.3",
     "typescript": "^3.8.3"
   },
   "scripts": {
     "build": "npm run build-cjs && npm run build-esm",
     "build-esm": "npx tsc -m es6 --outDir lib/esm",
     "build-cjs": "npx tsc -m commonjs --outDir lib/commonjs",
+    "build:docs": "npx typedoc",
     "test": "npx ava-ts"
   },
   "author": "Johan Stén <johan@futuretense.io>",

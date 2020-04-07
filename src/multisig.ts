@@ -6,10 +6,34 @@ import {
     getHintFromSigner
 } from './hints';
 
+/**
+ * A string containing a StellarSdk.StrKey
+ * @public
+ */
+
 export type StrKey = string;
+
+/**
+ * @public
+ */
+
 export type Signature = StellarSdk.xdr.DecoratedSignature;
+
+/**
+ * @public
+ */
+
 export type AccountRecord = Pick<StellarSdk.ServerApi.AccountRecord, 'id' | 'signers' | 'thresholds' | 'balances'>;
+
+/**
+ * @public
+ */
+
 export type AccountSignerType = 'ed25519_public_key' | 'preauth_tx' | 'sha256_hash';
+
+/**
+ * @public
+ */
 
 export type Signer = {
     key: string;
@@ -18,9 +42,25 @@ export type Signer = {
 };
 
 /**
+ * @public
  */
 
 export type SignatureWeights = {[index: string]: number};
+
+/**
+ * `Signers` is a structure that contains the immutable parts of the information
+ *  that's needed to figure out how far the process of signing a specific
+ *  transaction has progressed.
+ *
+ * `Signers.hints` maps a signature hint to a set of StrKeys.
+ *
+ * `Signers.keys` maps an StrKey to a SignatureWeights structure that contains
+ * the source accounts the StrKey signs for, and the signing weights
+ *
+ * `Signers.isEmpty` is true if Signers hasn't had any info added to it
+ *
+ * @public
+ */
 
 export type Signers = {
     hints: {[index: string]: Set<StrKey>},
@@ -28,17 +68,33 @@ export type Signers = {
     isEmpty: boolean
 };
 
+/**
+ * An exception thrown when more signatures than needed have been added to a transaction
+ *
+ * @public
+ */
+
 export class TooManySignatures extends Error {}
 
+/**
+ * @internal
+ */
+
 type AccountThresholdsType = 'low_threshold' | 'med_threshold' | 'high_threshold';
+
+/**
+ * @internal
+ */
+
 type OperationSigner = {[index: string]: any};
+
 /**
  * Returns the source account for an operation
  *
- * @private
- * @param   {StellarSdk.Operation}      op
- * @param   {StellarSdk.Transaction}    tx
- * @returns {PubKey}
+ * @internal
+ * @param op - the operation
+ * @param tx - the transaction that contains it
+ * @returns an StrKey
  */
 
 const _getOperationSourceAccount = (
@@ -49,8 +105,10 @@ const _getOperationSourceAccount = (
 /**
  * Returns the source accounts for a transaction
  *
- * @param {StellarSdk.Transaction}  tx
- * @returns {Set<PubKey>}
+ * @public
+ * @category High-level
+ * @param tx - the transaction
+ * @returns a set of all of the source account strkeys
  */
 
 export function getTransactionSourceAccounts(
@@ -62,9 +120,9 @@ export function getTransactionSourceAccounts(
 /**
  * Returns the threshold category of an operation
  *
- * @private
- * @param   {StellarSdk.Operation}  op
- * @returns {ThresholdCategory}
+ * @internal
+ * @param op - the operation
+ * @returns a string
  */
 
 const _getOperationCategory = (
@@ -96,9 +154,10 @@ const _getOperationCategory = (
 /**
  * Gets the required signing threshold for each source account in a transaction
  *
- * @param   {StellarSdk.Transaction}    tx
- * @param   {Array<AccountRecord>}        accounts
- * @returns {SignatureWeights}
+ * @public
+ * @param tx - the transaction
+ * @param accounts - a list of account records
+ * @returns SignatureWeights
  */
 
 export function getThresholds(
@@ -152,9 +211,10 @@ export function getThresholds(
 /**
  * Gets the thresholds for when a source account rejects a transaction
  *
- * @param   {Array<AccountRecord>}    accounts
- * @param   {SignatureWeights}      thresholds
- * @returns {SignatureWeights}
+ * @public
+ * @param accounts -
+ * @param thresholds -
+ * @returns SignatureWeights
  */
 
 export function getRejectionThresholds(
@@ -174,11 +234,13 @@ export function getRejectionThresholds(
 }
 
 /**
+ * Returns a `Signers` structure for a transaction
  *
- * @param   {StellarSdk.Transaction}    tx
- * @param   {Array<AccountRecord>}      accounts
- * @param   {AccountSignerType}         type
- * @returns {signers}
+ * @public
+ * @param tx -
+ * @param accounts -
+ * @param type - the type of signers
+ * @returns signers
  */
 
 export function getSigners(
@@ -253,9 +315,9 @@ export function getSigners(
 }
 
 /**
- * @private
- * @param weights
- * @param signer
+ * @internal
+ * @param weights -
+ * @param signer -
  */
 
 const _updateSigningWeights = (
@@ -275,10 +337,11 @@ const _updateSigningWeights = (
 /**
  * Validates a signature and returns the key that signed it, if any
  *
- * @param {Buffer | string} message
- * @param signers
- * @param {signature} signature
- * @return {string | null}
+ * @public
+ * @param message - the signed message
+ * @param signers -
+ * @param signature - the signature to validate
+ * @returns a signer key, or null if none
  */
 
 export function validateSignature(
@@ -317,9 +380,10 @@ export function validateSignature(
 
 /**
  *
- * @param weights
- * @param signers
- * @param signingKey
+ * @public
+ * @param weights - the current weights
+ * @param signers - the transaction signers
+ * @param signingKey - the signing key whose weight to add
  */
 
 export function addSignatureToWeights(
@@ -337,9 +401,10 @@ export function addSignatureToWeights(
  * Checks the signature weights accumulated so far, to see if enough weight has
  * been added that the signers have approved the transaction.
  *
- * @param weights
- * @param thresholds
- * @return {boolean}
+ * @public
+ * @param weights - the current accumulated signature weights
+ * @param thresholds - the thresholds for approval
+ * @returns true if the thresholds have been crossed, and weights is enough
  */
 
 export function hasEnoughWeight(
@@ -351,31 +416,31 @@ export function hasEnoughWeight(
 
 /**
  * Checks the signature rejection weights accumulated so far, to see if enough
- * weight have been added that the signers have rejected the transaction, i.e.
- * it cannot be approved by the other signers.
+ * signers have rejected the transaction, such that the remaining signers doesnt'
+ * have enough weight to make the transaction approved.
  *
- * @param weights
- * @param rejects
- * @return {boolean}
+ * @public
+ * @category Low-level
+ * @param weights - the accumulated signature rejection weights
+ * @param thresholds - the thresholds for rejection
+ * @returns true if enough rejection weight has been accumulated
  */
 
 export function hasEnoughRejections(
     weights: SignatureWeights,
-    rejects: SignatureWeights
+    thresholds: SignatureWeights
 ): boolean {
-    return Object.keys(rejects).every((key) => weights[key] > rejects[key]);
+    return Object.keys(thresholds).every((key) => weights[key] > thresholds[key]);
 }
 
 /**
- *
- * @private
- * @param tx
- * @param accounts
- * @param validatedKeys
- * @param allSignaturesMask
- * @param preAuth
- * @return {boolean}
- * @throws {TooManySignatures}
+ * @internal
+ * @param tx -
+ * @param accounts -
+ * @param signers -
+ * @param weights -
+ * @param thresholds -
+ * @returns true if enough signatures have been added to approve the tx
  */
 
 function _processPreAuthSigners(
@@ -423,6 +488,17 @@ function _processPreAuthSigners(
     return isDone;
 }
 
+/**
+ *
+ * @internal
+ * @param tx -
+ * @param accounts -
+ * @param validatedKeys -
+ * @param allSignaturesMask -
+ * @returns boolean
+ * @throws TooManySignatures
+ */
+
 const _has_enough_common = (
     tx: StellarSdk.Transaction,
     accounts: AccountRecord[],
@@ -468,13 +544,16 @@ const _has_enough_common = (
 };
 
 /**
+ * Checks if the list of provided signers contains enough
+ * signers to successfully sign the transaction
  *
- * @param tx
- * @param accounts
- * @param signingKeys
- * @param preAuth
- * @return {boolean}
- * @throws {TooManySignatures}
+ * @public
+ * @category High-level
+ * @param tx -
+ * @param accounts -
+ * @param signingKeys -
+ * @returns true if enough signers
+ * @throws TooManySignatures
  */
 
 export function hasEnoughSigners(
@@ -494,13 +573,16 @@ export function hasEnoughSigners(
 }
 
 /**
+ * Checks if the list of provided signatures contains enough
+ * signatures to successfully sign the transaction
  *
- * @param tx
- * @param accounts
- * @param signatures
- * @param preAuth
- * @return {boolean}
- * @throws {TooManySignatures}
+ * @public
+ * @category High-level
+ * @param tx -
+ * @param accounts -
+ * @param signatures -
+ * @returns true if enough signatures
+ * @throws TooManySignatures
  */
 
 export function hasEnoughSignatures(

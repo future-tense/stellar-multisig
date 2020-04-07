@@ -9,6 +9,7 @@ import {
 
 /**
  * A signature hint is a shortened string used to identify a signer
+ * @public
  */
 
 export type SignatureHint = string;
@@ -16,8 +17,9 @@ export type SignatureHint = string;
 /**
  * Returns a signature hint from a public key
  *
- * @param {PubKey} key
- * @return {SignatureHint}
+ * @public
+ * @param key -
+ * @returns SignatureHint
  */
 
 export const getHintFromPubKey = (
@@ -28,14 +30,19 @@ export const getHintFromPubKey = (
 /**
  * Returns a signature hint from a SHA256 hash
  *
- * @param {string} key
- * @return {SignatureHint}
+ * @internal
+ * @param key -
+ * @returns SignatureHint
  */
 
 const _getHintFromHash = (
     key: StrKey
 ): SignatureHint =>
     StellarSdk.StrKey.decodeSha256Hash(key).slice(28).toString('hex');
+
+/**
+ * @internal
+ */
 
 const hintFunc: {[index: string]: any} = {
     'sha256_hash':          _getHintFromHash,
@@ -47,8 +54,9 @@ const hintFunc: {[index: string]: any} = {
 /**
  *  Returns a signature hint from a signer
  *
- * @param signer
- * @return {SignatureHint}
+ * @public
+ * @param signer -
+ * @returns SignatureHint
  */
 
 export const getHintFromSigner = (
@@ -57,8 +65,10 @@ export const getHintFromSigner = (
 
 /**
  * Returns a signature hint from a signature
- * @param {Signature} sig
- * @return {SignatureHint}
+ *
+ * @public
+ * @param sig -
+ * @returns SignatureHint
  */
 
 export const getHintFromSignature = (
