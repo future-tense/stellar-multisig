@@ -11,18 +11,18 @@
 
 ```
 import StellarSdk from 'stellar-sdk';
-import multisig from '@futuretense/stellar-multisig';
+import multiSig from '@futuretense/stellar-multisig';
 
 const server = StellarSdk.Server('...');
 const tx = StellarSdk.TransactionBuilder('...').build();
 
 ...
 
-const sources = multisig.getTransactionSourceAccounts(tx);
-const accounts = await multisig.fetchSourceAccounts(server, sources);
+const sources = multiSig.getTransactionSourceAccounts(tx);
+const accounts = await multiSig.fetchSourceAccounts(server, sources);
 
 const signatures = ['...', '...', ...];
-const res = multisig.isApproved(tx, accounts, signatures);
+const res = multiSig.hasEnoughSignatures(tx, accounts, signatures);
 ```
 
 Copyright &copy; 2018-2020 Future Tense, LLC
