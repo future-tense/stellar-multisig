@@ -22,10 +22,10 @@
   "scripts": {
     "clean": "rm -rf lib && rm -rf temp",
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
-    "build:esm": "npx tsc -m es6 --outDir lib/esm",
-    "build:cjs": "npx tsc -m commonjs --outDir lib/commonjs",
-    "build:types": "npx tsc -p tsconfig.types.json && npx api-extractor run --local",
-    "build:docs": "npx typedoc",
+    "build:esm": "npx tsc -p config/tsconfig.json -m es6 --outDir lib/esm",
+    "build:cjs": "npx tsc -p config/tsconfig.json -m commonjs --outDir lib/commonjs",
+    "build:types": "npx tsc -p config/tsconfig.types.json && npx api-extractor run -c config/api-extractor.json --local",
+    "build:docs": "npx typedoc --options config/typedoc.json --tsconfig config/tsconfig.json",
     "test": "npx ava-ts"
   },
   "author": "Johan Stén <johan@futuretense.io>",

@@ -17,7 +17,7 @@
     "declaration": false,
     "sourceMap": false,
     "target": "es2017",
-    "outDir": "lib",
+    "outDir": "../lib",
     "esModuleInterop": true,
     "moduleResolution": "Node",
     "lib": [
@@ -26,10 +26,10 @@
     ]
   },
   "include": [
-    "src/**/*.ts"
+    "../src/**/*.ts"
   ],
   "exclude": [
-    "node_modules",
-    "**/*.spec.ts"
+    "../node_modules",
+    "../**/*.spec.ts"
   ]
 }
