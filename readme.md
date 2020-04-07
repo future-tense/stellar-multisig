@@ -19,7 +19,7 @@ const tx = StellarSdk.TransactionBuilder('...').build();
 ...
 
 const sources = multiSig.getTransactionSourceAccounts(tx);
-const accounts = await multiSig.fetchSourceAccounts(server, sources);
+const accounts = await multiSig.fetchAccountRecords(server, sources);
 
 const signatures = ['...', '...', ...];
 const res = multiSig.hasEnoughSignatures(tx, accounts, signatures);

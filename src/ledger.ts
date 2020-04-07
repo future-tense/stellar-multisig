@@ -61,9 +61,9 @@ const _getAccountPromises = (
  * @return {Promise<Array<AccountInfo>>}
  */
 
-export async function fetchSourceAccounts(
-    accountList: Set<StrKey>,
-    horizon: StellarSdk.Server
+export async function fetchAccountRecords(
+    horizon: StellarSdk.Server,
+    accountList: Set<StrKey>
 ): Promise<StellarSdk.ServerApi.AccountRecord[]> {
     const promises = _getAccountPromises(accountList, horizon);
     return Promise.all(promises);
