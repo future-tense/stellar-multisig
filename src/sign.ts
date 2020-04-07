@@ -9,7 +9,7 @@ import * as StellarSdk from 'stellar-sdk';
  * @return {StellarSdk.xdr.DecoratedSignature}
  */
 
-export function createTransactionSignature(
+export function createKeypairSignature(
     tx: StellarSdk.Transaction,
     keypair: StellarSdk.Keypair,
 ): StellarSdk.xdr.DecoratedSignature {

@@ -31,8 +31,8 @@ test('two source accounts, single signers', t => {
     ];
 
     const signatures = [
-        multiSig.createTransactionSignature(tx, alice.keys),
-        multiSig.createTransactionSignature(tx, bob.keys)
+        multiSig.createKeypairSignature(tx, alice.keys),
+        multiSig.createKeypairSignature(tx, bob.keys)
     ];
 
     const res = multiSig.hasEnoughSignatures(tx, accounts, signatures);
