@@ -1,9 +1,9 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/api-extractor/v7/api-extractor.schema.json",
-  "mainEntryPointFilePath": "<projectFolder>/../temp/types/index.d.ts",
+  "mainEntryPointFilePath": "<projectFolder>/temp/types/index.d.ts",
   "bundledPackages": [ ],
   "compiler": {
-    "tsconfigFilePath": "<projectFolder>/tsconfig.types.json"
+    "tsconfigFilePath": "<projectFolder>/config/tsconfig.types.json"
   },
 
   "apiReport": {
@@ -17,7 +17,7 @@
   "dtsRollup": {
     "enabled": true,
     "untrimmedFilePath": "",
-    "publicTrimmedFilePath": "<projectFolder>/../lib/index.d.ts",
+    "publicTrimmedFilePath": "<projectFolder>/lib/index.d.ts",
     "omitTrimmingComments": true
   },
 

@@ -23,10 +23,10 @@
   "scripts": {
     "clean": "rm -rf lib && rm -rf temp",
     "build": "npm run build:cjs && npm run build:esm && npm run build:types",
-    "build:esm": "npx tsc -p config/tsconfig.json -m es6 --outDir lib/esm",
-    "build:cjs": "npx tsc -p config/tsconfig.json -m commonjs --outDir lib/commonjs",
+    "build:esm": "npx tsc -p tsconfig.json -m es6 --outDir lib/esm",
+    "build:cjs": "npx tsc -p tsconfig.json -m commonjs --outDir lib/commonjs",
     "build:types": "npx tsc -p config/tsconfig.types.json && npx api-extractor run -c config/api-extractor.json --local",
-    "build:docs": "npx typedoc --options config/typedoc.json --tsconfig config/tsconfig.json",
+    "build:docs": "npx typedoc --options config/typedoc.json --tsconfig tsconfig.json",
     "publish:docs": "npx gh-pages -m 'Updates' -d docs",
     "test": "npx ava-ts"
   },
