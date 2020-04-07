@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "removeComments": false,
+    "strictNullChecks": true,
+    "declaration": true,
+    "declarationMap":  true,
+    "declarationDir": "temp/types",
+    "sourceMap": false,
+    "target": "es2017",
+    "outDir": "temp",
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+    "lib": [
+      "es6",
+      "dom"
+    ]
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
+}
